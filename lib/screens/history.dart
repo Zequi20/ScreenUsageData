@@ -1,8 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:screen_state/screen_state.dart';
 import 'dart:async';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -31,8 +34,20 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   void initState() {
+    requestLocationPermission();
     startListening();
     super.initState();
+  }
+
+  void requestLocationPermission() async {
+    PermissionStatus status = await Permission.location.request();
+
+    if (status.isDenied) {
+      SystemNavigator.pop();
+      if (kDebugMode) {
+        print('Permiso de ubicación denegado');
+      }
+    }
   }
 
   void startListening() {
@@ -54,36 +69,48 @@ class _HistoryScreenState extends State<HistoryScreen> {
       isUnlocked = 0;
       if (kDebugMode) {
         print("PANTALLA ENCENDIDA");
+        Position position = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high);
         var newDataRef = ref.push();
         List dateTime = _log.last.time.toString().substring(0, 19).split(' ');
         await newDataRef.set({
           "action": "PANTALLA ENCENDIDA",
           "date": dateTime[0],
           "time": dateTime[1],
+          "latitude": position.latitude,
+          "longitud": position.longitude
         });
       }
     } else if (event == ScreenStateEvent.SCREEN_OFF) {
       if (isUnlocked == 1) {
         if (kDebugMode) {
           print("PANTALLA BLOQUEADA");
+          Position position = await Geolocator.getCurrentPosition(
+              desiredAccuracy: LocationAccuracy.high);
           var newDataRef = ref.push();
           List dateTime = _log.last.time.toString().substring(0, 19).split(' ');
           await newDataRef.set({
             "action": "PANTALLA BLOQUEADA",
             "date": dateTime[0],
             "time": dateTime[1],
+            "latitude": position.latitude,
+            "longitud": position.longitude
           });
         }
         isUnlocked = 0;
       } else {
         if (kDebugMode) {
           print("PANTALLA APAGADA(SIN DESBLOQUEAR)");
+          Position position = await Geolocator.getCurrentPosition(
+              desiredAccuracy: LocationAccuracy.high);
           var newDataRef = ref.push();
           List dateTime = _log.last.time.toString().substring(0, 19).split(' ');
           await newDataRef.set({
             "action": "PANTALLA APAGADA(SIN DESBLOQUEAR)",
             "date": dateTime[0],
             "time": dateTime[1],
+            "latitude": position.latitude,
+            "longitud": position.longitude
           });
         }
         isUnlocked = 0;
@@ -92,12 +119,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
       isUnlocked = 1;
       if (kDebugMode) {
         print("PANTALLA DESBLOQUEADA");
+        Position position = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high);
         var newDataRef = ref.push();
         List dateTime = _log.last.time.toString().substring(0, 19).split(' ');
         await newDataRef.set({
           "action": "PANTALLA DESBLOQUEADA",
           "date": dateTime[0],
           "time": dateTime[1],
+          "latitude": position.latitude,
+          "longitud": position.longitude
         });
       }
     }

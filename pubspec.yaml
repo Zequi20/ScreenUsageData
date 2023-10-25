@@ -38,6 +38,8 @@ dependencies:
   screen_state: ^3.0.1
   firebase_core: ^2.20.0
   firebase_database: ^10.3.2
+  geolocator: ^10.1.0
+  permission_handler: ^11.0.1
 
 dev_dependencies:
   flutter_test:
