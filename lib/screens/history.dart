@@ -82,7 +82,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Screen State Example',
+          'Screen usage data collector',
           style: TextStyle(color: Colors.white),
         ),
       ),
