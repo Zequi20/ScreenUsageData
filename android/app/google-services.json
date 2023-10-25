@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "883391824274",
+    "project_id": "screenusagedata",
+    "storage_bucket": "screenusagedata.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:883391824274:android:b94f185e764df5c68a414b",
+        "android_client_info": {
+          "package_name": "com.example.data_getter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDLpFJR4TQ2A9hEZLj7g0YHJZjaIkSA4Hg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
