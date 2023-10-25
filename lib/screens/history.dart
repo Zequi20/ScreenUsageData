@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:screen_state/screen_state.dart';
 import 'dart:async';
+import 'package:firebase_database/firebase_database.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -20,6 +21,8 @@ class ScreenStateEventEntry {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
+  DatabaseReference ref = FirebaseDatabase.instance.ref("data");
+
   final Screen _screen = Screen();
   StreamSubscription<ScreenStateEvent>? _subscription;
   bool started = false;
@@ -43,7 +46,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }
   }
 
-  void _onData(ScreenStateEvent event) {
+  void _onData(ScreenStateEvent event) async {
     setState(() {
       _log.add(ScreenStateEventEntry(event));
     });
@@ -51,16 +54,37 @@ class _HistoryScreenState extends State<HistoryScreen> {
       isUnlocked = 0;
       if (kDebugMode) {
         print("PANTALLA ENCENDIDA");
+        var newDataRef = ref.push();
+        List dateTime = _log.last.time.toString().substring(0, 19).split(' ');
+        await newDataRef.set({
+          "action": "PANTALLA ENCENDIDA",
+          "date": dateTime[0],
+          "time": dateTime[1],
+        });
       }
     } else if (event == ScreenStateEvent.SCREEN_OFF) {
       if (isUnlocked == 1) {
         if (kDebugMode) {
           print("PANTALLA BLOQUEADA");
+          var newDataRef = ref.push();
+          List dateTime = _log.last.time.toString().substring(0, 19).split(' ');
+          await newDataRef.set({
+            "action": "PANTALLA BLOQUEADA",
+            "date": dateTime[0],
+            "time": dateTime[1],
+          });
         }
         isUnlocked = 0;
       } else {
         if (kDebugMode) {
           print("PANTALLA APAGADA(SIN DESBLOQUEAR)");
+          var newDataRef = ref.push();
+          List dateTime = _log.last.time.toString().substring(0, 19).split(' ');
+          await newDataRef.set({
+            "action": "PANTALLA APAGADA(SIN DESBLOQUEAR)",
+            "date": dateTime[0],
+            "time": dateTime[1],
+          });
         }
         isUnlocked = 0;
       }
@@ -68,6 +92,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
       isUnlocked = 1;
       if (kDebugMode) {
         print("PANTALLA DESBLOQUEADA");
+        var newDataRef = ref.push();
+        List dateTime = _log.last.time.toString().substring(0, 19).split(' ');
+        await newDataRef.set({
+          "action": "PANTALLA DESBLOQUEADA",
+          "date": dateTime[0],
+          "time": dateTime[1],
+        });
       }
     }
   }
