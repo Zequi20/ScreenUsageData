@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_device_name/flutter_device_name.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -25,6 +26,7 @@ class ScreenStateEventEntry {
 
 class _HistoryScreenState extends State<HistoryScreen> {
   DatabaseReference ref = FirebaseDatabase.instance.ref("data");
+  final plugin = DeviceName();
 
   final Screen _screen = Screen();
   StreamSubscription<ScreenStateEvent>? _subscription;
@@ -62,75 +64,72 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   void _onData(ScreenStateEvent event) async {
+    final deviceName = await plugin.getName();
     setState(() {
       _log.add(ScreenStateEventEntry(event));
     });
     if (event == ScreenStateEvent.SCREEN_ON) {
       isUnlocked = 0;
-      if (kDebugMode) {
-        print("PANTALLA ENCENDIDA");
+
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+      var newDataRef = ref.push();
+      List dateTime = _log.last.time.toString().substring(0, 19).split(' ');
+      await newDataRef.set({
+        "user": deviceName,
+        "action": "PANTALLA ENCENDIDA",
+        "date": dateTime[0],
+        "time": dateTime[1],
+        "latitude": position.latitude,
+        "longitud": position.longitude
+      });
+    } else if (event == ScreenStateEvent.SCREEN_OFF) {
+      if (isUnlocked == 1) {
         Position position = await Geolocator.getCurrentPosition(
             desiredAccuracy: LocationAccuracy.high);
         var newDataRef = ref.push();
         List dateTime = _log.last.time.toString().substring(0, 19).split(' ');
         await newDataRef.set({
-          "action": "PANTALLA ENCENDIDA",
+          "user": deviceName,
+          "action": "PANTALLA BLOQUEADA",
           "date": dateTime[0],
           "time": dateTime[1],
           "latitude": position.latitude,
           "longitud": position.longitude
         });
-      }
-    } else if (event == ScreenStateEvent.SCREEN_OFF) {
-      if (isUnlocked == 1) {
-        if (kDebugMode) {
-          print("PANTALLA BLOQUEADA");
-          Position position = await Geolocator.getCurrentPosition(
-              desiredAccuracy: LocationAccuracy.high);
-          var newDataRef = ref.push();
-          List dateTime = _log.last.time.toString().substring(0, 19).split(' ');
-          await newDataRef.set({
-            "action": "PANTALLA BLOQUEADA",
-            "date": dateTime[0],
-            "time": dateTime[1],
-            "latitude": position.latitude,
-            "longitud": position.longitude
-          });
-        }
+
         isUnlocked = 0;
       } else {
-        if (kDebugMode) {
-          print("PANTALLA APAGADA(SIN DESBLOQUEAR)");
-          Position position = await Geolocator.getCurrentPosition(
-              desiredAccuracy: LocationAccuracy.high);
-          var newDataRef = ref.push();
-          List dateTime = _log.last.time.toString().substring(0, 19).split(' ');
-          await newDataRef.set({
-            "action": "PANTALLA APAGADA(SIN DESBLOQUEAR)",
-            "date": dateTime[0],
-            "time": dateTime[1],
-            "latitude": position.latitude,
-            "longitud": position.longitude
-          });
-        }
+        Position position = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high);
+        var newDataRef = ref.push();
+        List dateTime = _log.last.time.toString().substring(0, 19).split(' ');
+        await newDataRef.set({
+          "user": deviceName,
+          "action": "PANTALLA APAGADA(SIN DESBLOQUEAR)",
+          "date": dateTime[0],
+          "time": dateTime[1],
+          "latitude": position.latitude,
+          "longitud": position.longitude
+        });
+
         isUnlocked = 0;
       }
     } else if (event == ScreenStateEvent.SCREEN_UNLOCKED) {
       isUnlocked = 1;
-      if (kDebugMode) {
-        print("PANTALLA DESBLOQUEADA");
-        Position position = await Geolocator.getCurrentPosition(
-            desiredAccuracy: LocationAccuracy.high);
-        var newDataRef = ref.push();
-        List dateTime = _log.last.time.toString().substring(0, 19).split(' ');
-        await newDataRef.set({
-          "action": "PANTALLA DESBLOQUEADA",
-          "date": dateTime[0],
-          "time": dateTime[1],
-          "latitude": position.latitude,
-          "longitud": position.longitude
-        });
-      }
+
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+      var newDataRef = ref.push();
+      List dateTime = _log.last.time.toString().substring(0, 19).split(' ');
+      await newDataRef.set({
+        "user": deviceName,
+        "action": "PANTALLA DESBLOQUEADA",
+        "date": dateTime[0],
+        "time": dateTime[1],
+        "latitude": position.latitude,
+        "longitud": position.longitude
+      });
     }
   }
 
