@@ -147,16 +147,23 @@ class _HistoryScreenState extends State<HistoryScreen> {
           style: TextStyle(color: Colors.white),
         ),
       ),
-      body: Center(
-          child: ListView.builder(
-              itemCount: _log.length,
-              reverse: true,
-              itemBuilder: (BuildContext context, int idx) {
-                final entry = _log[idx];
-                return ListTile(
-                    leading: Text(entry.time.toString().substring(0, 19)),
-                    trailing: Text(entry.event.toString().split('.').last));
-              })),
+      body: Container(
+        color: Colors.black,
+        child: Center(
+            child: ListView.builder(
+                itemCount: _log.length,
+                reverse: true,
+                itemBuilder: (BuildContext context, int idx) {
+                  final entry = _log[idx];
+                  return ListTile(
+                      leading: Text(
+                        entry.time.toString().substring(0, 19),
+                        style: const TextStyle(color: Colors.green),
+                      ),
+                      trailing: Text(entry.event.toString().split('.').last,
+                          style: const TextStyle(color: Colors.green)));
+                })),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: started ? stopListening : startListening,
         tooltip: 'Start/Stop Listening',
